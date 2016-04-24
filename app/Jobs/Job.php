@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Jobs;
+namespace DataReaper\Jobs;
 
 use Illuminate\Bus\Queueable;
 

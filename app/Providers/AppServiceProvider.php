@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Providers;
+namespace DataReaper\Providers;
 
 use Illuminate\Support\ServiceProvider;
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace DataReaper;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
