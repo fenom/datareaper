@@ -2,10 +2,15 @@
 
 namespace DataReaper;
 
+use Jenssegers\Mongodb\Eloquent\HybridRelations;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable
 {
+    use HybridRelations;
+
+    protected $connection = 'mysql';
+
     /**
      * The attributes that are mass assignable.
      *
@@ -23,4 +28,12 @@ class User extends Authenticatable
     protected $hidden = [
         'password', 'remember_token',
     ];
+
+    /**
+     * Get the trackobot account record associated with the user.
+     */
+    public function trackobot_account()
+    {
+        return $this->hasOne('DataReaper\TrackobotAccount');
+    }
 }
