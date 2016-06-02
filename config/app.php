@@ -155,6 +155,9 @@ return [
         DataReaper\Providers\AuthServiceProvider::class,
         DataReaper\Providers\EventServiceProvider::class,
         DataReaper\Providers\RouteServiceProvider::class,
+        DataReaper\Providers\ComposerServiceProvider::class,
+        Jenssegers\Mongodb\MongodbServiceProvider::class,
+        Collective\Html\HtmlServiceProvider::class,
 
     ],
 
@@ -201,6 +204,9 @@ return [
         'URL' => Illuminate\Support\Facades\URL::class,
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
+        'Moloquent' => Jenssegers\Mongodb\Eloquent\Model::class,
+        'Form' => Collective\Html\FormFacade::class,
+        'Html' => Collective\Html\HtmlFacade::class,
 
     ],
 
