@@ -8,7 +8,12 @@
                 <div class="panel-heading">Welcome</div>
 
                 <div class="panel-body">
-                    Your Application's Landing Page.
+                    Legend Meta Since Whispers of the Old Gods
+                    {{ Html::ul($classes) }}
+                    {{ Form::open(['method' => 'get']) }}
+                    How many past days? {{ Form::selectRange('days', 1, 3, $days) }}
+                    {{ Form::submit() }}
+                    {{ Form::close() }}
                 </div>
             </div>
         </div>
