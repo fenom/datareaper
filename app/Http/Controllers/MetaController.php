@@ -1,0 +1,34 @@
+<?php
+
+namespace DataReaper\Http\Controllers;
+
+use DataReaper\Repositories\MetaRepository;
+use Illuminate\Http\Request;
+
+use DataReaper\Http\Requests;
+
+class MetaController extends Controller
+{
+    /**
+     * The meta repository instance.
+     *
+     * @var MetaRepository
+     */
+    protected $meta;
+
+    /**
+     * Create a new controller instance.
+     *
+     * @param  MetaRepository  $meta
+     * @return void
+     */
+    public function __construct(MetaRepository $meta)
+    {
+        $this->meta = $meta;
+    }
+
+    public function index(Request $request)
+    {
+        return response()->json($this->meta->get($added = $request->added ?: ['2016-05-31T07:00:00+00:00Z', '2016-06-01T07:00:00+00:00Z']), 200, [], JSON_PRETTY_PRINT);
+    }
+}

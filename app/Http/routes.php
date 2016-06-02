@@ -12,5 +12,10 @@
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('meta');
 });
+Route::get('/meta', 'MetaController@index');
+
+Route::auth();
+
+Route::get('/home', 'HomeController@index');
