@@ -9,22 +9,29 @@ class MetaRepository
     /**
      * Get meta.
      *
-     * @param  $added[0]
-     * @param  $added[1]
-     * @param  $rank
-     * @param  $legend
-     * @return Collection
+     * @param  array  $added
+     * @param  array  $rank
+     * @param  array  $legend
+     * @return array
      */
-    public function get($added = [0], $rank = [1, 25], $legend = [1], $username = [])
+    public function get(array $added = [0], array $rank = [0], array $legend = [1], array $username = [])
     {
         $datareaper = \DB::getMongoDB();
-        $match = ['mode' => 'ranked', 'added' => ['$gte' => new \MongoDate($added[0] ? strtotime($added[0]) : 0), '$lte' => new \MongoDate($added[1] ? strtotime($added[1]) : time())]];
+        $added or $added = [0];
+        $rank or $rank = [0];
+        sort($added);
+        sort($rank);
+        $match = ['mode' => 'ranked',
+                  'rank' => ['$gte' => (int) $rank[0], '$lte' => isset($rank[1]) ? (int) $rank[1] : 25],
+                  //'legend' => !$rank[0] ? ['$gte' => $legend[0]] + (isset($legend[1]) ? ['$lte' => $legend[1]] : []) : null,
+                  'added' => ['$gte' => new \MongoDate($added[0] ? max(strtotime($added[0]), strtotime('2016-05-01 PDT')) : time() - 60 * 60 * 24 - 4 * 60), '$lte' => new \MongoDate(isset($added[1]) ? strtotime($added[1]) : time() - 4 * 60)]
+                 ];
         $group = ['_id' => ['class' => '$opponent', 'archetype' => '$opponent_deck'], 'count' => ['$sum' => 1]];
-        $sort = ['_id.class' => 1, '_id.archetype' => 1];
+        $sort = ['_id.class' => 1, 'count' => -1];
         $count = $datareaper->games->count($match);
         $decks = [];
         foreach ($datareaper->games->aggregate(['$match' => $match], ['$group' => $group], ['$sort' => $sort])['result'] as $deck)
-            $decks[$deck['_id']['class']][$deck['_id']['archetype']] = $deck['count'] / $count;
-        return collect($decks + ['count' => $count]);
+            $decks[$deck['_id']['class']][strstr($deck['_id']['archetype'], ' ' . $deck['_id']['class'], true) ?: 'Other'] = $deck['count'] / $count;
+        return ['decks' => $decks, 'count' => $count, 'query' => $match];
     }
 }

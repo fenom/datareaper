@@ -29,6 +29,6 @@ class MetaController extends Controller
 
     public function index(Request $request)
     {
-        return response()->json($this->meta->get($added = $request->added ?: ['2016-05-31T07:00:00+00:00Z', '2016-06-01T07:00:00+00:00Z']), 200, [], JSON_PRETTY_PRINT);
+        return response()->json($this->meta->get($added = (array) $request->added, $rank = (array) $request->rank), 200, [], JSON_PRETTY_PRINT);
     }
 }
