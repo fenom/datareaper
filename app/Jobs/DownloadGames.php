@@ -60,6 +60,10 @@ class DownloadGames extends Job implements ShouldQueue
                 print_r($history->meta);
                 foreach($history->history as $game)
                 {
+                    if($game->id <= $last->id)
+                        break;
+                    $game->hero_deck = $game->opponent_deck = null;
+                    isset($game->legend) and $game->rank = 0;
                     $game->player = $account->_id;
                     $game->username = $account->username;
                     $game->token = $account->token;
