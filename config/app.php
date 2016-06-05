@@ -158,6 +158,7 @@ return [
         DataReaper\Providers\ComposerServiceProvider::class,
         Jenssegers\Mongodb\MongodbServiceProvider::class,
         Collective\Html\HtmlServiceProvider::class,
+        Khill\Lavacharts\Laravel\LavachartsServiceProvider::class,
 
     ],
 
