@@ -16,6 +16,7 @@ class CreateCardsTable extends Migration
             $collection->unique('id');
             $collection->index('name');
             $collection->index('mana');
+            $collection->index('format');
         });
     }
 
@@ -30,6 +31,7 @@ class CreateCardsTable extends Migration
             $collection->dropIndex('id');
             $collection->dropIndex('name');
             $collection->dropIndex('mana');
+            $collection->dropIndex('format');
         });
     }
 }
