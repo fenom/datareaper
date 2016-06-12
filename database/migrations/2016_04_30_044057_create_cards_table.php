@@ -13,10 +13,20 @@ class CreateCardsTable extends Migration
     public function up()
     {
         Schema::table('cards', function (Blueprint $collection) {
-            $collection->unique('id');
+            $collection->unique('cardId');
             $collection->index('name');
-            $collection->index('mana');
-            $collection->index('format');
+            $collection->index('cardSet');
+            $collection->index('type');
+            $collection->index('faction');
+            $collection->index('rarity');
+            $collection->index('cost');
+            $collection->index('attack');
+            $collection->index('health');
+            $collection->index('durability');
+            $collection->index('collectible');
+            $collection->index('race');
+            $collection->index('playerClass');
+            $collection->index('mechanics');
         });
     }
 
@@ -28,10 +38,20 @@ class CreateCardsTable extends Migration
     public function down()
     {
         Schema::table('cards', function (Blueprint $collection) {
-            $collection->dropIndex('id');
+            $collection->dropIndex('cardId');
             $collection->dropIndex('name');
-            $collection->dropIndex('mana');
-            $collection->dropIndex('format');
+            $collection->dropIndex('cardSet');
+            $collection->dropIndex('type');
+            $collection->dropIndex('faction');
+            $collection->dropIndex('rarity');
+            $collection->dropIndex('cost');
+            $collection->dropIndex('attack');
+            $collection->dropIndex('health');
+            $collection->dropIndex('durability');
+            $collection->dropIndex('collectible');
+            $collection->dropIndex('race');
+            $collection->dropIndex('playerClass');
+            $collection->dropIndex('mechanics');
         });
     }
 }

@@ -14,6 +14,7 @@ class CreateTrackobotAccountsTable extends Migration
     {
         Schema::table('trackobot_accounts', function (Blueprint $collection) {
             $collection->unique('username');
+            $collection->index('region');
         });
     }
 
@@ -26,6 +27,7 @@ class CreateTrackobotAccountsTable extends Migration
     {
         Schema::table('trackobot_accounts', function (Blueprint $table) {
             $collection->dropIndex('username');
+            $collection->dropIndex('region');
         });
     }
 }
