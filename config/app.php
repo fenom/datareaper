@@ -158,6 +158,7 @@ return [
         DataReaper\Providers\EventServiceProvider::class,
         DataReaper\Providers\RouteServiceProvider::class,
         DataReaper\Providers\ComposerServiceProvider::class,
+        DataReaper\Providers\GoogleClientServiceProvider::class,
         Jenssegers\Mongodb\MongodbServiceProvider::class,
         Collective\Html\HtmlServiceProvider::class,
         Khill\Lavacharts\Laravel\LavachartsServiceProvider::class,

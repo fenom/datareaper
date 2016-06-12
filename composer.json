@@ -8,9 +8,9 @@
         "php": ">=5.5.9",
         "laravel/framework": "5.2.*",
         "jenssegers/mongodb": "2.*",
-        "guzzlehttp/guzzle": "^6.2",
         "laravelcollective/html": "^5.2",
-        "khill/lavacharts": "^3.0"
+        "khill/lavacharts": "^3.0",
+        "google/apiclient": "^2.0"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",
@@ -49,6 +49,6 @@
         ]
     },
     "config": {
-        "preferred-install": "dist"
+        "preferred-install": "source"
     }
 }
