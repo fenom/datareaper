@@ -22,9 +22,10 @@ class MetaRepository
         sort($added);
         sort($rank);
         $match = ['mode' => 'ranked',
+                  'format' => 'Standard',
                   'rank' => ['$gte' => (int) $rank[0], '$lte' => isset($rank[1]) ? (int) $rank[1] : 25],
                   //'legend' => !$rank[0] ? ['$gte' => $legend[0]] + (isset($legend[1]) ? ['$lte' => $legend[1]] : []) : null,
-                  'added' => ['$gte' => new \MongoDate($added[0] ? max(strtotime($added[0]), strtotime('2016-05-01 PDT')) : time() - 60 * 60 * 24 - 4 * 60), '$lte' => new \MongoDate(isset($added[1]) ? strtotime($added[1]) : time() - 4 * 60)]
+                  'added' => ['$gte' => new \MongoDate($added[0] ? max(strtotime($added[0]), strtotime('2016-05-01 PDT')) : time() - 60 * 60 * 24 - 20 * 60), '$lte' => new \MongoDate(isset($added[1]) ? strtotime($added[1]) : time() - 20 * 60)]
                  ];
         $group = ['_id' => ['class' => '$opponent', 'archetype' => '$opponent_deck'], 'count' => ['$sum' => 1]];
         $sort = ['_id.class' => 1, 'count' => -1];
