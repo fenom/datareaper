@@ -38,5 +38,6 @@ class TagGames extends Command
     public function handle()
     {
         dispatch(new \DataReaper\Jobs\TagGames($this->argument('from'), $this->argument('to')));
+        $this->line(memory_get_peak_usage(true)/1024/1024);
     }
 }

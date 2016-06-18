@@ -33,19 +33,19 @@ class DownloadGames extends Job implements ShouldQueue
      */
     public function handle()
     {
-        $guzzlehttp = new \GuzzleHttp\Client(["base_uri" => "https://trackobot.com/profile/history.json"]);
+        $guzzlehttp = new \GuzzleHttp\Client(['base_uri' => 'https://trackobot.com/profile/history.json']);
         $datareaper = \DB::getMongoDB();
-        $batch = new \MongoUpdateBatch($datareaper->games, ["ordered" => false]);
+        $batch = new \MongoUpdateBatch($datareaper->games, ['ordered' => false]);
         foreach(TrackobotAccount::all() as $account)
         {
-            echo"$account\n";
+            //echo"$account\n";
             $last = Game::whereUsername($account->username)->orderBy('id', 'desc')->first() ?: (object)["id" => 0];
-            $history = (object)["meta" => (object)["next_page" => 1]];
+            $history = (object)['meta' => (object)['next_page' => 1]];
             do
             {
                 try
                 {
-                    $history=json_decode($guzzlehttp->get("",["query"=>['username' => $account->username, 'token' => $account->token, "page" => $history->meta->next_page], 'http_errors' => false])->getBody());
+                    $history = json_decode($guzzlehttp->get('', ['query'=>['username' => $account->username, 'token' => $account->token, 'page' => $history->meta->next_page], 'http_errors' => false])->getBody());
                 }
                 catch(\Exception $e)
                 {
@@ -54,16 +54,24 @@ class DownloadGames extends Job implements ShouldQueue
                 if (isset($history->error))
                 {
                     print_r($history);
+                    echo"$account\n";
                     $account->delete();
                     break;
                 }
-                print_r($history->meta);
-                foreach($history->history as $game)
+                if (!isset($history->history))
+                    break;
+                //print_r($history->meta);
+                foreach ($history->history as $game)
                 {
-                    if($game->id <= $last->id)
+                    if ($game->id <= $last->id)
                         break;
-                    $game->hero_deck = $game->opponent_deck = null;
+                    if ($game->mode != 'arena')
+                    {
+                        $game->hero_deck = $game->opponent_deck = null;
+                        $game->format = 'Standard';
+                    }
                     isset($game->legend) and $game->rank = 0;
+                    $game->region = $account->region;
                     $game->player = $account->_id;
                     $game->username = $account->username;
                     $game->token = $account->token;
