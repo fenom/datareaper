@@ -29,6 +29,6 @@ class MetaController extends Controller
 
     public function index(Request $request)
     {
-        return response()->json($this->meta->get($added = (array) $request->added, $rank = (array) $request->rank), 200, [], JSON_PRETTY_PRINT);
+        return response()->json($this->meta->get($request->all()), 200, [], JSON_PRETTY_PRINT)->header('Access-Control-Allow-Origin', '*');
     }
 }
