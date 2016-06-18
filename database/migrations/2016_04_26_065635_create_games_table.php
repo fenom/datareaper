@@ -26,8 +26,9 @@ class CreateGamesTable extends Migration
             $collection->sparse('legend');
             $collection->index('added');
             $collection->index('card_history.card.name');
-            $collection->index('format');
+            $collection->sparse('format');
             $collection->index('region');
+            $collection->index('player');
             $collection->index('username');
         });
     }
@@ -55,6 +56,7 @@ class CreateGamesTable extends Migration
             $collection->dropIndex('card_history.card.name');
             $collection->dropIndex('format');
             $collection->dropIndex('region');
+            $collection->dropIndex('player');
             $collection->dropIndex('username');
         });
     }

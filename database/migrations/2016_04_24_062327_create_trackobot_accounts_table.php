@@ -25,7 +25,7 @@ class CreateTrackobotAccountsTable extends Migration
      */
     public function down()
     {
-        Schema::table('trackobot_accounts', function (Blueprint $table) {
+        Schema::table('trackobot_accounts', function (Blueprint $collection) {
             $collection->dropIndex('username');
             $collection->dropIndex('region');
         });
