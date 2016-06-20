@@ -39,7 +39,6 @@ class TagGames extends Job implements ShouldQueue
      */
     public function handle()
     {
-        $guzzlehttp = new \GuzzleHttp\Client(["base_uri" => "https://trackobot.com/profile/history.json"]);
         $datareaper = \DB::getMongoDB();
         $batch = new \MongoUpdateBatch($datareaper->games, ["ordered" => false]);
         $sets = iterator_to_array($datareaper->sets->find());
@@ -58,12 +57,20 @@ class TagGames extends Job implements ShouldQueue
         foreach ($datareaper->games->find(['mode' => 'ranked', 'format' => 'Standard', 'added' => ['$gte' => new \MongoDate($this->from ? strtotime($this->from) : 0), '$lte' => new \MongoDate($this->to ? strtotime($this->to) : time())]])->sort(['_id' => -1]) as $game)
         {
             $herocards = $opponentcards = [];
-            foreach ($game['card_history'] as $card)
+            $previousturn = 0;
+            foreach ($game['card_history'] as $i => $card)
             {
+                if ($card['turn'] < $previousturn)
+                {
+                    for ($j = $i; $j; $j--)
+                        array_shift($game['card_history']);
+                    $herocards = $opponentcards = [];
+                    $datareaper->games->update(['_id' => $game['_id']], ['$set' => ['card_history' => $game['card_history'], 'format' => $game['format'] = 'Standard']]);
+                }
                 $card['player'] == "me" ? $herocards[] = $card['card']['name'] : $opponentcards[] = $card['card']['name'];
                 if(isset($cards[$card['card']['name']]['cardSet']) && $sets[$cards[$card['card']['name']]['cardSet']]['format'] == 'Wild')
                     $datareaper->games->update(['_id' => $game['_id']], ['$set' => ['format' => $game['format'] = 'Wild']]);
-                //$cards->add(['q' => ['_id' => $card['card']['id']], 'u' => ['$set' => $card['card']], 'upsert' => true]);
+                $previousturn = $card['turn'];
             }
             $herodeckscore = array_map(function ($value) use ($herocards)
             {
@@ -83,6 +90,5 @@ class TagGames extends Job implements ShouldQueue
             }
         }
         $batch->execute();
-        //$cards->execute();
     }
 }
