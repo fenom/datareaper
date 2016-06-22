@@ -30,6 +30,9 @@ class CreateGamesTable extends Migration
             $collection->index('region');
             $collection->index('player');
             $collection->index('username');
+            $collection->index('original_hero_deck');
+            $collection->index('original_opponent_deck');
+            $collection->index('time');
         });
     }
 
@@ -58,6 +61,9 @@ class CreateGamesTable extends Migration
             $collection->dropIndex('region');
             $collection->dropIndex('player');
             $collection->dropIndex('username');
+            $collection->dropIndex('original_hero_deck');
+            $collection->dropIndex('original_opponent_deck');
+            $collection->dropIndex('time');
         });
     }
 }
