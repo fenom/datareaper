@@ -65,17 +65,17 @@ class DownloadGames extends Job implements ShouldQueue
                 {
                     if ($game->id <= $last->id)
                         break;
-                    if ($game->mode != 'arena')
-                    {
-                        $game->hero_deck = $game->opponent_deck = null;
-                        $game->format = 'Standard';
-                    }
                     isset($game->legend) and $game->rank = 0;
+                    $game->added = new \MongoDate($added = strtotime($game->added));
+                    $game->format = $game->mode != 'arena' ? 'Standard' : 'Wild';
                     $game->region = $account->region;
                     $game->player = $account->_id;
                     $game->username = $account->username;
                     $game->token = $account->token;
-                    $game->added = new \MongoDate(strtotime($game->added));
+                    $game->original_hero_deck = $game->hero_deck;
+                    $game->original_opponent_deck = $game->opponent_deck;
+                    $game->time = idate('H', $added) * 60 * 60 + idate('i', $added) * 60 + idate('s', $added);
+                    $game->hero_deck = $game->opponent_deck = null;
                     $batch->add(['q' => ['_id' => $game->id], 'u' => ['$set' => $game], 'upsert' => true]);
                 }
             } while($history->meta->next_page && end($history->history)->id > $last->id);
