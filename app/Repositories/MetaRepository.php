@@ -41,10 +41,11 @@ class MetaRepository
                  ];
         $group = ['_id' => ['class' => '$opponent', 'archetype' => '$opponent_deck'], 'count' => ['$sum' => 1]];
         $sort = ['_id.class' => 1, 'count' => -1];
-        $count = $datareaper->games->count($match);
+        $games = $datareaper->games->count($match);
+        $players = count($datareaper->games->distinct('player', $match));
         $decks = [];
         foreach ($datareaper->games->aggregate(['$match' => $match], ['$group' => $group], ['$sort' => $sort])['result'] as $deck)
-            $decks[$deck['_id']['class']][strstr($deck['_id']['archetype'], ' ' . $deck['_id']['class'], true) ?: 'Other'] = $deck['count'] / $count;
-        return ['decks' => $decks, 'count' => $count, 'query' => $query];
+            $decks[$deck['_id']['class']][strstr($deck['_id']['archetype'], ' ' . $deck['_id']['class'], true) ?: 'Other'] = $deck['count'] / $games;
+        return ['decks' => $decks, 'games' => $games, 'players' => $players, 'query' => $query];
     }
 }
