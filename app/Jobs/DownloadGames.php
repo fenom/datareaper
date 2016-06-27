@@ -36,9 +36,12 @@ class DownloadGames extends Job implements ShouldQueue
         $guzzlehttp = new \GuzzleHttp\Client(['base_uri' => 'https://trackobot.com/profile/history.json']);
         $datareaper = \DB::getMongoDB();
         $batch = new \MongoUpdateBatch($datareaper->games, ['ordered' => false]);
+        $pid = pcntl_fork();
         foreach(TrackobotAccount::all() as $account)
         {
-            //echo"$account\n";
+            if((bool) $pid != substr($account->username,-4) % 2)
+                continue;
+            //echo"$pid $account\n";
             $last = Game::whereUsername($account->username)->orderBy('id', 'desc')->first() ?: (object)["id" => 0];
             $history = (object)['meta' => (object)['next_page' => 1]];
             do
