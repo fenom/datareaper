@@ -54,33 +54,35 @@ class TagGames extends Job implements ShouldQueue
             foreach($deck->cards as $card)
                 fputcsv($deckscsv, [$deck->_id, $deck->class, $deck->archetype, $card]);
         }
-        foreach ($datareaper->games->find(['mode' => 'ranked', 'format' => 'Standard', 'added' => ['$gte' => new \MongoDate($this->from ? strtotime($this->from) : 0), '$lte' => new \MongoDate($this->to ? strtotime($this->to) : time())]])->sort(['_id' => -1]) as $game)
+        foreach ($datareaper->games->find(['mode' => 'ranked', 'format' => 'Standard', 'added' => ['$gte' => new \MongoDate($this->from ? strtotime($this->from) : 0), '$lte' => new \MongoDate($this->to ? strtotime($this->to) : time())]])->sort(['_id' => -1])->timeout(120000) as $game)
         {
             $herocards = $opponentcards = [];
-            $previousturn = 0;
+            $previousturn = 1;
             foreach ($game['card_history'] as $i => $card)
             {
                 if ($card['turn'] < $previousturn)
                 {
-                    for ($j = $i; $j; $j--)
+                    for ($j = $i + 1; $j; $j--)
                         array_shift($game['card_history']);
                     $herocards = $opponentcards = [];
                     $datareaper->games->update(['_id' => $game['_id']], ['$set' => ['card_history' => $game['card_history'], 'format' => $game['format'] = 'Standard']]);
                 }
+                for(; $previousturn < $card['turn']; $previousturn++)
+                    $herocards[] = $opponentcards[] = "End Turn";
                 $card['player'] == "me" ? $herocards[] = $card['card']['name'] : $opponentcards[] = $card['card']['name'];
                 if(isset($cards[$card['card']['name']]['cardSet']) && $sets[$cards[$card['card']['name']]['cardSet']]['format'] == 'Wild')
                     $datareaper->games->update(['_id' => $game['_id']], ['$set' => ['format' => $game['format'] = 'Wild']]);
-                $previousturn = $card['turn'];
             }
-            $herodeckscore = array_map(function ($value) use ($herocards)
+            $deckscore = function ($cards, $decks)
             {
-                return count(array_intersect($value, $herocards)) / count($value);
-            }, $decks[$game['hero']]);
+                return array_map(function ($deck) use ($cards)
+                {
+                    return count(array_intersect($cards, $deck)) / count($deck);
+                }, $decks);
+            };
+            $herodeckscore = $deckscore($herocards, $decks[$game['hero']]);
             arsort($herodeckscore);
-            $opponentdeckscore = array_map(function ($value) use ($opponentcards)
-            {
-                return count(array_intersect($value, $opponentcards)) / count($value);
-            }, $decks[$game['opponent']]);
+            $opponentdeckscore = $deckscore($opponentcards, $decks[$game['opponent']]);
             arsort($opponentdeckscore);
             $batch->add(['q' => ['_id' => $game['_id']], 'u' => ['$set' => ['hero_deck' => $herodeck = reset($herodeckscore) ? key($herodeckscore) : null, 'opponent_deck' => $opponentdeck = reset($opponentdeckscore) ? key($opponentdeckscore) : null]]]);
             if($game['format'] == 'Standard')

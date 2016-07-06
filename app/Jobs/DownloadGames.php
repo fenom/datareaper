@@ -70,7 +70,7 @@ class DownloadGames extends Job implements ShouldQueue
                         break;
                     isset($game->legend) and $game->rank = 0;
                     $game->added = new \MongoDate($added = strtotime($game->added));
-                    $game->format = $game->mode != 'arena' ? 'Standard' : 'Wild';
+                    $game->mode != 'arena' and $game->format = 'Standard';
                     $game->region = $account->region;
                     $game->player = $account->_id;
                     $game->username = $account->username;
