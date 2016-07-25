@@ -65,5 +65,10 @@ return [
         | Example storage_path().'/app/google/service-account-credentials.json'
         */
         'key' => storage_path(env('GOOGLE_SERVICE_KEY', '')),
+
+        /*
+        | Example xxx@gmail.com
+        */
+        'subject' => env('GOOGLE_SERVICE_SUBJECT', ''),
     ],
 ];

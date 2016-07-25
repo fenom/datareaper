@@ -27,6 +27,7 @@ class GoogleClientServiceProvider extends ServiceProvider
         $client = new \Google_Client();
         $client->setAuthConfig(Config::get('google.service.key'));
         $client->setScopes(Config::get('google.service.scopes'));
+        $client->setSubject(Config::get('google.service.subject'));
 
         $this->app->singleton(\Google_Client::class, function ($app) use ($client) {
             return $client;
