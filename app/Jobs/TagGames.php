@@ -50,7 +50,7 @@ class TagGames extends Job implements ShouldQueue
             $cards[$card['name']] = $card;
         foreach (Deck::all()->sortBy('class') as $deck)
         {
-            $decks[$deck->class][$deck->id] = $deck->cards;
+            $decks[$deck->class][$deck->archetype] = $deck->cards;
             foreach($deck->cards as $card)
                 fputcsv($deckscsv, [$deck->_id, $deck->class, $deck->archetype, $card]);
         }
@@ -87,8 +87,8 @@ class TagGames extends Job implements ShouldQueue
             $batch->add(['q' => ['_id' => $game['_id']], 'u' => ['$set' => ['hero_deck' => $herodeck = reset($herodeckscore) ? key($herodeckscore) : null, 'opponent_deck' => $opponentdeck = reset($opponentdeckscore) ? key($opponentdeckscore) : null]]]);
             if($game['format'] == 'Standard')
             {
-                fputcsv($training, array_merge([$herodeck, $game['id'], 'hero', $game['player'], $game['rank'], $game['added']->toDateTime()->format(DATE_W3C), $game['hero'], '["' . implode('","', $herocards) . '"]']));
-                fputcsv($training, array_merge([$opponentdeck, $game['id'], 'opponent', $game['player'], $game['rank'], $game['added']->toDateTime()->format(DATE_W3C), $game['opponent'], '["' . implode('","', $opponentcards) . '"]']));
+                fputcsv($training, array_merge(["$herodeck {$game['hero']}", $game['id'], 'hero', $game['player'], $game['rank'], $game['added']->toDateTime()->format(DATE_W3C), $game['hero'], '["' . implode('","', $herocards) . '"]']));
+                fputcsv($training, array_merge(["$opponentdeck {$game['opponent']}", $game['id'], 'opponent', $game['player'], $game['rank'], $game['added']->toDateTime()->format(DATE_W3C), $game['opponent'], '["' . implode('","', $opponentcards) . '"]']));
             }
         }
         $batch->execute();
