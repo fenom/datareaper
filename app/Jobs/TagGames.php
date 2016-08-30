@@ -44,15 +44,17 @@ class TagGames extends Job implements ShouldQueue
         $sets = iterator_to_array($datareaper->sets->find());
         $decks = array_fill_keys(['Druid', 'Hunter', 'Mage', 'Priest', 'Paladin', 'Rogue', 'Shaman', 'Warlock', 'Warrior'], []);
         $deckscsv = fopen('decks.csv', 'w');
-        fputcsv($deckscsv, ['name', 'class', 'archetype', 'card']);
+        fputcsv($deckscsv, ['name', 'class', 'archetype', 'card', 'weight']);
         $training = fopen('training.csv', 'w');
         foreach($datareaper->cards->find() as $card)
             $cards[$card['name']] = $card;
         foreach (Deck::all()->sortBy('class') as $deck)
         {
-            $decks[$deck->class][$deck->archetype] = $deck->cards;
             foreach($deck->cards as $card)
-                fputcsv($deckscsv, [$deck->_id, $deck->class, $deck->archetype, $card]);
+            {
+                $decks[$deck->class][$deck->archetype][$card['name']] = $card['weight'];
+                fputcsv($deckscsv, [$deck->_id, $deck->class, $deck->archetype, $card['name'], $card['weight']]);
+            }
         }
         foreach ($datareaper->games->find(['mode' => 'ranked', 'format' => 'Standard', 'added' => ['$gte' => new \MongoDate($this->from ? strtotime($this->from) : 0), '$lte' => new \MongoDate($this->to ? strtotime($this->to) : time())]])->sort(['_id' => -1])->timeout(120000) as $game)
         {
@@ -77,7 +79,7 @@ class TagGames extends Job implements ShouldQueue
             {
                 return array_map(function ($deck) use ($cards)
                 {
-                    return count(array_intersect($cards, $deck)) / count($deck);
+                    return array_sum(array_map(function ($value) use ($deck) {return isset($deck[$value]) ? $deck[$value] : 0;}, $cards));
                 }, $decks);
             };
             $herodeckscore = $deckscore($herocards, $decks[$game['hero']]);
