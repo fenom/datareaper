@@ -75,20 +75,20 @@ class TagGames extends Job implements ShouldQueue
                 if(isset($cards[$card['card']['name']]['cardSet']) && $sets[$cards[$card['card']['name']]['cardSet']]['format'] == 'Wild')
                     $datareaper->games->update(['_id' => $game['_id']], ['$set' => ['format' => $game['format'] = 'Wild']]);
             }
-            $deckscore = function ($cards, $decks)
-            {
-                return array_map(function ($deck) use ($cards)
-                {
-                    return array_sum(array_map(function ($value) use ($deck) {return isset($deck[$value]) ? $deck[$value] : 0;}, $cards));
-                }, $decks);
-            };
-            $herodeckscore = $deckscore($herocards, $decks[$game['hero']]);
-            arsort($herodeckscore);
-            $opponentdeckscore = $deckscore($opponentcards, $decks[$game['opponent']]);
-            arsort($opponentdeckscore);
-            $batch->add(['q' => ['_id' => $game['_id']], 'u' => ['$set' => ['hero_deck' => $herodeck = reset($herodeckscore) ? key($herodeckscore) : null, 'opponent_deck' => $opponentdeck = reset($opponentdeckscore) ? key($opponentdeckscore) : null]]]);
             if($game['format'] == 'Standard')
             {
+                $deckscore = function ($cards, $decks)
+                {
+                    return array_map(function ($deck) use ($cards)
+                    {
+                        return array_sum(array_map(function ($value) use ($deck) {return isset($deck[$value]) ? $deck[$value] : 0;}, $cards));
+                    }, $decks);
+                };
+                $herodeckscore = $deckscore($herocards, $decks[$game['hero']]);
+                arsort($herodeckscore);
+                $opponentdeckscore = $deckscore($opponentcards, $decks[$game['opponent']]);
+                arsort($opponentdeckscore);
+                $batch->add(['q' => ['_id' => $game['_id']], 'u' => ['$set' => ['hero_deck' => $herodeck = reset($herodeckscore) ? key($herodeckscore) : null, 'opponent_deck' => $opponentdeck = reset($opponentdeckscore) ? key($opponentdeckscore) : null]]]);
                 fputcsv($training, array_merge(["$herodeck {$game['hero']}", $game['id'], 'hero', $game['player'], $game['rank'], $game['added']->toDateTime()->format(DATE_W3C), $game['hero'], '["' . implode('","', $herocards) . '"]']));
                 fputcsv($training, array_merge(["$opponentdeck {$game['opponent']}", $game['id'], 'opponent', $game['player'], $game['rank'], $game['added']->toDateTime()->format(DATE_W3C), $game['opponent'], '["' . implode('","', $opponentcards) . '"]']));
             }
