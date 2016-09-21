@@ -11,7 +11,7 @@ class DownloadGames extends Command
      *
      * @var string
      */
-    protected $signature = 'games:download {trackobot_account?}';
+    protected $signature = 'games:download {trackobot_account?} {--forks=0}';
 
     /**
      * The console command description.
@@ -37,7 +37,7 @@ class DownloadGames extends Command
      */
     public function handle()
     {
-        dispatch(new \DataReaper\Jobs\DownloadGames());
+        dispatch(new \DataReaper\Jobs\DownloadGames($this->option('forks')));
         $this->line(memory_get_peak_usage(true)/1024/1024);
     }
 }

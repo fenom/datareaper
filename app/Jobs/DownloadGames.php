@@ -14,6 +14,7 @@ class DownloadGames extends Job implements ShouldQueue
     use InteractsWithQueue, SerializesModels;
 
     protected $trackobot_account;
+    protected $forks;
 
     /**
      * Create a new job instance.
@@ -21,9 +22,10 @@ class DownloadGames extends Job implements ShouldQueue
      * @param  TrackobotAccount  $trackobot_account
      * @return void
      */
-    public function __construct()
+    public function __construct($forks)
     {
         //$this->trackobot_account = $trackobot_account;
+        $this->forks = $forks;
     }
 
     /**
@@ -37,13 +39,13 @@ class DownloadGames extends Job implements ShouldQueue
         $datareaper = \DB::getMongoDB();
         $batch = new \MongoUpdateBatch($datareaper->games, ['ordered' => false]);
         $thread = 0;
-        pcntl_fork() and $thread +=1;
-        pcntl_fork() and $thread +=2;
+        for ($i = 0; $i < $this->forks; ++$i)
+            pcntl_fork() and $thread += pow(2, $i);
         foreach(TrackobotAccount::all() as $account)
         {
-            if($thread != substr($account->username, -4) % 4)
+            if($thread != abs(substr($account->username, -4) % pow(2, $this->forks)))
                 continue;
-            //echo"$pid $account\n";
+            //echo"$thread $account\n";
             $last = Game::whereUsername($account->username)->orderBy('id', 'desc')->first() ?: (object)["id" => 0];
             $history = (object)['meta' => (object)['next_page' => 1]];
             do
