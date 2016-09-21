@@ -10,7 +10,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-class TagGames extends Job implements ShouldQueue
+class ClassifyDecks extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
 

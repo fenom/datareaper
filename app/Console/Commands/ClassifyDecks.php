@@ -4,21 +4,21 @@ namespace DataReaper\Console\Commands;
 
 use Illuminate\Console\Command;
 
-class TagGames extends Command
+class ClassifyDecks extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'games:tag {from?} {to?}';
+    protected $signature = 'decks:classify {from?} {to?}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Tag Games';
+    protected $description = 'Classify Decks';
 
     /**
      * Create a new command instance.
@@ -37,7 +37,7 @@ class TagGames extends Command
      */
     public function handle()
     {
-        dispatch(new \DataReaper\Jobs\TagGames($this->argument('from'), $this->argument('to')));
+        dispatch(new \DataReaper\Jobs\ClassifyDecks($this->argument('from'), $this->argument('to')));
         $this->line(memory_get_peak_usage(true)/1024/1024);
     }
 }

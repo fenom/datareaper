@@ -15,7 +15,7 @@ class Kernel extends ConsoleKernel
     protected $commands = [
         Commands\Inspire::class,
         Commands\DownloadGames::class,
-        Commands\TagGames::class,
+        Commands\ClassifyDecks::class,
         Commands\GenerateCsvs::class,
     ];
 
