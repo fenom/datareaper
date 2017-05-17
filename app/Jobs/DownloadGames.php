@@ -15,6 +15,8 @@ class DownloadGames extends Job implements ShouldQueue
 
     protected $trackobot_account;
     protected $forks;
+    protected $sleep;
+    protected $verbose;
 
     /**
      * Create a new job instance.
@@ -22,10 +24,12 @@ class DownloadGames extends Job implements ShouldQueue
      * @param  TrackobotAccount  $trackobot_account
      * @return void
      */
-    public function __construct($forks)
+    public function __construct($forks = 0, $sleep = 4, $verbose = false)
     {
         //$this->trackobot_account = $trackobot_account;
         $this->forks = $forks;
+        $this->sleep = $sleep;
+        $this->verbose = $verbose;
     }
 
     /**
@@ -41,30 +45,30 @@ class DownloadGames extends Job implements ShouldQueue
         $thread = 0;
         for ($i = 0; $i < $this->forks; ++$i)
             pcntl_fork() and $thread += pow(2, $i);
-        foreach(TrackobotAccount::all() as $account)
+        foreach(TrackobotAccount::all()->sortBy('updated_at') as $account)
         {
             if($thread != abs(substr($account->username, -4) % pow(2, $this->forks)))
                 continue;
-            //echo"$thread $account\n";
             $last = Game::whereUsername($account->username)->orderBy('id', 'desc')->first() ?: (object)["id" => 0];
             $history = (object)['meta' => (object)['next_page' => 1]];
             do
             {
                 try
                 {
-                    $history = json_decode($guzzlehttp->get('', ['query'=>['username' => $account->username, 'token' => $account->token, 'page' => $history->meta->next_page], 'http_errors' => false])->getBody());
+                    $history = $guzzlehttp->get('', ['query'=>['username' => $account->username, 'token' => $account->token, 'page' => $history->meta->next_page], 'http_errors' => false])->getBody();
                 }
                 catch(\Exception $e)
                 {
                     echo"$e\n";
                 }
-                if (isset($history->error))
+                if ($history == 'Unauthorized')
                 {
-                    print_r($history);
+                    //print_r($history);
                     echo"$account\n";
                     $account->delete();
                     break;
                 }
+                $history = json_decode($history);
                 if (!isset($history->history))
                     break;
                 //print_r($history->meta);
@@ -94,6 +98,10 @@ class DownloadGames extends Job implements ShouldQueue
             {
                 
             }
+            $account->updated_at = new \MongoDate;
+            $account->save();
+            $this->verbose and print("$thread $account\n");
+            sleep($this->sleep);
         }
     }
 }
